@@ -15,6 +15,7 @@
 * packets even in the presence of packets being discarded, packet corruption, and
 * packet reordering.)
 ********************************************************************************/
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.DatagramPacket;
@@ -23,12 +24,6 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.zip.CRC32;
-
-/**********************************************************************
- * Acknowledgement
- *
- * Packet_Receiver Class: Adopted and modified from https://github.com/9gix/cs2105/
- **********************************************************************/
 
 public class FileReceiver {
 	public final static CRC32 checksumGenerator = new CRC32();
