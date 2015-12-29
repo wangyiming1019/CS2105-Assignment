@@ -4,7 +4,7 @@
 *
 * AUTHOR: MunKeat
 * Acknowledgement
-* 	Skeletal frame adopted from CS2105 Assignment 03
+* 	Skeletal frame adopted from CS2105 Assignment 03 [Refer to [Packet] Assignment 3]
 *
 * DATE: 02-Nov-2015
 *
