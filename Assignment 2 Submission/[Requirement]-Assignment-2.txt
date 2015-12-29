@@ -1,0 +1,137 @@
+/********************************************************************************
+* CS2105 Assignment 02 Requirement [Extract]
+*
+* Assignment 02
+* Reliable File Transfer Protocol
+*
+* National University of Singapore
+* School of Computing
+* CS2105: Introduction to Computer Networks
+* Semester 1, 2015/2016
+********************************************************************************/
+
+/******************************
+* OVERVIEW
+******************************/
+In this assignment, you will be writing the sending and receiving transport-level code for implementing a reliable file transfer protocol over UDP. The underlying channel in unreliable and may corrupt, drop or even re-order the packets are random. This assignment should be fun since your implementation will differ very little from what would be required in a real-world situation.
+
+/******************************
+* ARCHITECTURE
+******************************/
+There are three programs in this assignment: FileSender, UnreliNET and FileReceiver.
+
+The FileSender and FileReceiver programs implement a reliable file transfer protocol over UDP. The UnreliNET program acts as a proxy between FileSender and FileReceiver. Instead of the FileSender sending the packets directly to the FileReceiver, it sends all packets to UnreliNET. UnreliNET simulates an unreliable channel by randomly discarding packets, corrupting packets and even reordering the packets before forwarding them to the FileReceiver. Similarly, packets from the FileReceiver are also subject to the same unreliable conditions when forwarded to the FileSender.
+
+The UnreliNET program is complete and given to you. Your task is to write the FileSender and FileReceiver programs so that a file can be successfully transferred in over an unreliable channel. The received file should be exactly identical to the one being sent. You will have to employ techniques taught in the lecture or from the textbook to ensure correct and reliable delivery.
+
+Note: Protocols to handle out-of-order packets is not covered in the syllabus. Bonus marks will be given if your protocol is able to cater for this.
+
+••• The FileSender •••
+The FileSender program sends a given file to FileReceiver via UnreliNET. UnreliNET may then lose, corrupt or reorder the packets with a given probability before relaying them to the FileReceiver program.
+
+The FileSender program will take in 4 input arguments: the host name, port number, source file, and the destination file name. For example:
+
+  $ java FileSender localhost 9000 ../large.mp4 big.mp4
+
+sends the file ../large.mp4 to UnreliNET running on localhost on port 9000. UnreliNET will then relay the file to FileReceiver to be stored as big.mp4. The FileSender program will quit once the file has been successfully transfered.
+
+You may assume that during testing, FileSender will be supplied with a valid path and filename, and that the pathname will not exceed 255 characters. No input validation is needed. You will also need to design a way to send the filename over to the FileReceiver for storing.
+
+Note: Windows OS uses a different file separator ‘ \ ’, e.g., ..\large.mp4
+
+••• UnreliNET.class •••
+We simulate an unreliable channel by relaying packets through the UnreliNET program. UnreliNET will only relay packets that contains at most 1,000bytes of application data.
+
+The compiled classfile of UnreliNET is provided. To run UnreliNET, the command is:
+
+  java UnreliNET <loss> <corrupt> <reorder> <unrelinet port> <recv port>
+
+where
+• loss is the probability of losing a packet.
+• corrupt is the probability of a packet being corrupted.
+• reorder is the probability that a packet will be delayed and re-ordered.
+• unrelinet port is the port that UnreliNET is to listen on.
+• recv port is the port on localhost that the FileReceiver is listening on.
+
+For example, the UnreliNET command could be:
+
+  $ java UnreliNET 0.1 0.2 0.3 9000 9001
+
+where on average 10% of the packets will be lost, 20% of the packets will be corrupted, and 30% of the packets will be delayed and potentially delivered out-of-order.
+
+We recommend setting these values between the range [0.0, 3.0] for testing. Setting too large a value may result in very slow file transmission. If you have trouble getting your code to work, you might want to set them to 0 first for debugging.
+
+You may also store the output of UnreliNET to a file for analysis as so:
+
+  $ java UnreliNET 0.1 0.2 0.3 9000 9001 > output.txt
+
+••• FileReceiver.class •••
+The FileReceiver program receives a file from FileSender (via UnreliNET) and saves it in the same directory it is running in, with the filename specified by the FileSender program. We will terminate FileReceiver with <Ctrl>+C once FileSender terminates, so you should ensure that the file is correctly written to disk at this point in time.
+
+The FileReceiver takes in one argument, the port number of which to listen on, e.g.,
+
+  $ java FileReceiver 9001
+
+will being listening on port 9001.
+
+/******************************
+* TESTING
+******************************/
+Although UnreliNET is designed to accept traffic over a network, you should run all three programs on localhost to avoid interference from network traffic.
+
+You should first run FileReceiver and UnreliNET before running FileSender. When testing on sunfire, you can open three SSH windows, one for each program. UnreliNET runs indefinitely and so you have to press <Ctrl>+C to terminate it.
+
+You may use the included SimpleUDPSender and SimpleUDPReceiver to test your set up. The SimpleUDPSender simply sends a given number of packets which the SimpleUDPReceiver displays the packet number it receives. You can use the code as a reference for your own programs.
+
+To check if both files are identical, you can use md5sum to compute the digest of both files, e.g.,
+
+  $ md5sum doge.jpg.
+
+The digest for both files will be identical if their contents are identical.
+
+/******************************
+* TIMER AND TIMEOUT VALUES
+******************************/
+We do not recommend that you use a timeout value larger than 200ms. Using a larger value might cause your program to be slow in sending data and exceed the allowable time limit. For simple alternating-bit protocols, you could potentially use a 1ms timeout when testing on localhost as the RTT is below 1ms.
+
+/******************************
+* COMPUTING CHECKSUM
+******************************/
+UnreliNET will corrupt the payload of the UDP packet. Thus, you should use a checksum to verify the integrity of the received packets.
+
+/******************************
+* BASIC CRITERIA
+******************************/
+Self-defined Header/Trailer Fields
+As part of your protocol, you will have to implement certain header/trailer fields into the packets, such as sequence number and checksum. The number of fields and the structure in a packet is agreed upon between the sender and the receiver. That is an application layer protocol that you design.
+
+The ByteBuffer class from the java.nio package makes it easy to insert and retrieve primitive data into a byte array. You can refer to SimpleUDPSender and SimpleUDPReceiver on how a ByteBuffer can be used. This is just a suggestion and you do not to use this class if you have an alternative solution.
+
+There will be a time limit of 60 seconds for every 1MB transferred.
+
+/******************************
+* BASIC CRITERIA
+******************************/
+• Your program can be compiled.
+
+• Your programs can successfully transfer a file from sender to receiver over a perfectly reliable channel, i.e., no error is introduced.
+
+• Your program can successfully transfer a file from sender to receiver in the presence of packet corruption.
+
+• Your program can successfully transfer a file from sender to receiver in the presence of packet loss. Your program can successfully transfer a file from sender to receiver in the presence of both packet corruption and packet loss.
+
+/******************************
+* ADVANCED CRITERIA
+******************************/
+• Your program can successfully transfer a file from sender to receiver in the presence of packets being reordered. This is not covered in the syllabus so you will have to do your own research.
+
+• Your program can successfully transfer a file from sender to receiver in the presence of packet corruption, packet loss and reordering.
+
+• Speed Test. It is not difficult to ensure reliable delivery using the simple alternate bit protocols we discussed in lecture. However, they have very poor utilization. Thus, for this test, you will need to implement pipelining to increase the speed of the transfer. We will rank you according to the time your program takes to transfer a large file (more than 50MB) in the presence of 2% packet corruption and 2% packet loss.
+
+– Rank 1–30 students.
+– Rank 31–60 students.
+– Rank 61-90 students.
+– Rank 91 and beyond, whose timing is under 60 seconds.
+
+Note: Printing output to the terminal can cause additional delay. You may disable the output of UnreliNET by redirecting it to /dev/null, e.g., “ java UnreliNET 0.02 0.02 0 8000 8001 > /dev/null ”.
