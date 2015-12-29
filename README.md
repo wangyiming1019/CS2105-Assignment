@@ -2,9 +2,9 @@
 A repository for CS2105-Assignment AY 2015/16, Semester I
 
 ### Table of Content
-Assignment 1: HTTP Proxy
-Assignment 2: Reliable File Transfer Protocol
-Assignment 3: Cryptographic Messages
+* Assignment 1: HTTP Proxy
+* Assignment 2: Reliable File Transfer Protocol
+* Assignment 3: Cryptographic Messages
 
 ### Annotations
 Each *Assignment X Submission* folder will contain the following:
